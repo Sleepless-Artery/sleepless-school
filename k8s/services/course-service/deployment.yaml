@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: course-service
+  namespace: online-learning-platform
+  labels:
+    app: course-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: course-service
+  template:
+    metadata:
+      labels:
+        app: course-service
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for postgres..."
+              until nc -z postgres-courses 5432; do
+                sleep 2
+              done
+              echo "Postgres is available"
+      containers:
+        - name: course-service
+          image: arterygin/course-service:1.0.10
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8083
+
+          envFrom:
+            - configMapRef:
+                name: course-config
+            - secretRef:
+                name: course-secret
+
+          readinessProbe:
+            httpGet:
+              path: /internal/actuator/health
+              port: 8083
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /internal/actuator/health
+              port: 8083
+            initialDelaySeconds: 240
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+
+      restartPolicy: Always

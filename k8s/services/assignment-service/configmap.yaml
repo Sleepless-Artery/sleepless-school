@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assignment-config
+  namespace: online-learning-platform
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  ASSIGNMENT_DB_URL: jdbc:postgresql://postgres-assignments:5432/assignment_db
+
+  LESSON_SERVICE_GRPC_URL: dns:///lesson-service:9097
+
+  ASSIGNMENT_REDIS_HOST: redis-assignments
+
+  KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap:9092
+
+  ASSIGNMENT_MINIO_URL: http://minio:9000
+  ASSIGNMENT_MINIO_BUCKET_NAME: assignments-files

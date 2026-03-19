@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sleepless_artery.auth_service";
+option java_outer_classname = "EmailVerificationServiceProto";
+
+
+service EmailVerificationService {
+  rpc isEmailAddressAvailable (EmailAddressAvailabilityRequest) returns (EmailAddressAvailabilityResponse);
+}
+
+message EmailAddressAvailabilityRequest {
+  string emailAddress = 1;
+}
+
+message EmailAddressAvailabilityResponse {
+  bool availability = 1;
+}

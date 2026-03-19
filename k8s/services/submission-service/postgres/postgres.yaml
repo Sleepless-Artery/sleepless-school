@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-submissions
+  namespace: online-learning-platform
+spec:
+  serviceName: postgres-submissions
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-submissions
+  template:
+    metadata:
+      labels:
+        app: postgres-submissions
+    spec:
+      containers:
+        - name: postgres-submissions
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: submission-secret
+                  key: SUBMISSION_DB_USERNAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: submission-secret
+                  key: SUBMISSION_DB_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: submission-secret
+                  key: SUBMISSION_DB_PASSWORD
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)"]
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
+
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)"]
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            periodSeconds: 15
+            failureThreshold: 6
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

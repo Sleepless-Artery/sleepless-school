@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: online-learning-platform
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes

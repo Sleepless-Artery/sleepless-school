@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: course-config
+  namespace: online-learning-platform
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  COURSE_DB_URL: jdbc:postgresql://postgres-courses:5432/course_db
+
+  USER_SERVICE_GRPC_URL: user-service:9093
+
+  LESSON_SERVICE_GRPC_URL: lesson-service:9097
+
+  ENROLLMENT_SERVICE_GRPC_URL: enrollment-service:9099
+  
+  COURSE_REDIS_HOST: redis-courses
+
+  KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap:9092

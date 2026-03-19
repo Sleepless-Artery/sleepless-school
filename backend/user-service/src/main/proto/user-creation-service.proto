@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sleepless_artery.user_service";
+option java_outer_classname = "UserCreationServiceProto";
+
+
+service UserCreationService {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+}
+
+message CreateUserRequest {
+  string email_address = 1;
+}
+
+message CreateUserResponse {
+  bool success = 1;
+}

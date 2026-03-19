@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-enrollments
+  namespace: online-learning-platform
+spec:
+  serviceName: postgres-enrollments
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-enrollments
+  template:
+    metadata:
+      labels:
+        app: postgres-enrollments
+    spec:
+      containers:
+        - name: postgres-enrollments
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: enrollment-secret
+                  key: ENROLLMENT_DB_USERNAME
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: enrollment-secret
+                  key: ENROLLMENT_DB_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: enrollment-secret
+                  key: ENROLLMENT_DB_PASSWORD
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)"]
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
+
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)"]
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            periodSeconds: 15
+            failureThreshold: 6
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

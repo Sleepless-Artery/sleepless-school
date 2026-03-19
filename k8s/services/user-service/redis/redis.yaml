@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-users
+  namespace: online-learning-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-users
+  template:
+    metadata:
+      labels:
+        app: redis-users
+    spec:
+      containers:
+        - name: redis-users
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379

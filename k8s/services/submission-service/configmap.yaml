@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: submission-config
+  namespace: online-learning-platform
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  SUBMISSION_DB_URL: jdbc:postgresql://postgres-submissions:5432/submission_db
+
+  USER_SERVICE_GRPC_URL: user-service:9093
+
+  ASSIGNMENT_SERVICE_GRPC_URL: assignment-service:9101
+
+  SUBMISSION_REDIS_HOST: redis-submissions
+
+  KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap:9092
+
+  SUBMISSION_MINIO_URL: http://minio:9000
+  SUBMISSION_MINIO_BUCKET_NAME: submissions-files

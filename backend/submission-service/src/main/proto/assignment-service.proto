@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sleepless_artery.submission_service";
+option java_outer_classname = "AssignmentServiceProto";
+
+
+service FetchAssignmentDataService {
+  rpc GetCorrectOptionsIndices (GetCorrectOptionsIndicesRequest) returns (GetCorrectOptionsIndicesResponse);
+  rpc GetMaxScore (GetMaxScoreRequest) returns (GetMaxScoreResponse);
+}
+
+
+service AssignmentVerificationService {
+  rpc VerifyAssignmentExistence (VerifyAssignmentExistenceRequest) returns (VerifyAssignmentExistenceResponse);
+}
+
+
+message GetCorrectOptionsIndicesRequest {
+  int64 assignmentId = 1;
+}
+
+message GetCorrectOptionsIndicesResponse {
+  repeated int32 correctOptionsIndices = 1;
+}
+
+
+message GetMaxScoreRequest {
+  int64 assignmentId = 1;
+}
+
+
+message GetMaxScoreResponse {
+  double maxScore = 1;
+}
+
+
+message VerifyAssignmentExistenceRequest {
+  int64 assignmentId = 1;
+}
+
+
+message VerifyAssignmentExistenceResponse {
+  bool existence = 1;
+}

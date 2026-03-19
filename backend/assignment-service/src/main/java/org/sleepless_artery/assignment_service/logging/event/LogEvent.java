@@ -1,0 +1,14 @@
+package org.sleepless_artery.assignment_service.logging.event;
+
+public enum LogEvent {
+    ASSIGNMENT_CREATION,
+    ASSIGNMENT_UPDATE,
+    ASSIGNMENT_DELETION,
+    ASSIGNMENT_FILE_UPDATE,
+    ASSIGNMENT_DELETION_BY_LESSON_ID,
+    FILE_UPLOAD,
+    FILE_VALIDATION,
+    FILE_REMOVE,
+    FILE_DOWNLOAD,
+    LESSON_EXISTENCE_VERIFICATION
+}

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-submissions
+  namespace: online-learning-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-submissions
+  template:
+    metadata:
+      labels:
+        app: redis-submissions
+    spec:
+      containers:
+        - name: redis-submissions
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379

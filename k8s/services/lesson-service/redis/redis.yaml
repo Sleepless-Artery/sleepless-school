@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-lessons
+  namespace: online-learning-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-lessons
+  template:
+    metadata:
+      labels:
+        app: redis-lessons
+    spec:
+      containers:
+        - name: redis-lessons
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-enrollments
+  namespace: online-learning-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-enrollments
+  template:
+    metadata:
+      labels:
+        app: redis-enrollments
+    spec:
+      containers:
+        - name: redis-enrollments
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379

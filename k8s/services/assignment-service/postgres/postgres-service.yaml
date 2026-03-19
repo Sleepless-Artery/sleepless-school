@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-assignments
+  namespace: online-learning-platform
+  labels:
+    app: postgres-assignments
+spec:
+  ports:
+    - port: 5432
+      name: postgres-assignments
+  clusterIP: None
+  selector:
+    app: postgres-assignments

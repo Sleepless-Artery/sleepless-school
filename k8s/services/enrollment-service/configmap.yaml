@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: enrollment-config
+  namespace: online-learning-platform
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes
+
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+  ENROLLMENT_DB_URL: jdbc:postgresql://postgres-enrollments:5432/enrollment_db
+
+  USER_SERVICE_GRPC_URL: user-service:9093
+
+  COURSE_SERVICE_GRPC_URL: course-service:9095
+
+  ENROLLMENT_REDIS_HOST: redis-enrollments
+
+  KAFKA_BOOTSTRAP_SERVERS: kafka-kafka-bootstrap:9092

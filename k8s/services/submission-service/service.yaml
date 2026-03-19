@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: submission-service
+  namespace: online-learning-platform
+spec:
+  selector:
+    app: submission-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8088

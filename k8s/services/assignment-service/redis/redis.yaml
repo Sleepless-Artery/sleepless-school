@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-assignments
+  namespace: online-learning-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-assignments
+  template:
+    metadata:
+      labels:
+        app: redis-assignments
+    spec:
+      containers:
+        - name: redis-assignments
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379

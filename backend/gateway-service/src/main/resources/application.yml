@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    web-application-type: reactive
+    lazy-initialization: true
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    kubernetes:
+      discovery:
+        enabled: true
+      loadbalancer:
+        enabled: true
+
+jwt:
+  secret: ${JWT_SECRET:default-secret-key}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /internal/actuator
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org:
+      springframework: WARN
+      hibernate:
+        SQL: WARN
+        type.descriptor.sql.BasicBinder: WARN
+      sleepless_artery:
+        gateway_service: WARN

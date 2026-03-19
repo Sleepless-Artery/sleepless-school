@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sleepless_artery.enrollment_service";
+option java_outer_classname = "UserVerificationServiceProto";
+
+
+service UserVerificationService {
+  rpc VerifyUserExistence (VerifyUserExistenceRequest) returns (VerifyUserExistenceResponse);
+}
+
+message VerifyUserExistenceRequest {
+  int64 id = 1;
+}
+
+message VerifyUserExistenceResponse {
+  bool existence = 1;
+}
