@@ -1,3 +1,4 @@
 # Kubernetes secrets
 /k8s/services/*/secret.yaml
 !k8s/services/*/secret.yaml.example
+.idea/*
