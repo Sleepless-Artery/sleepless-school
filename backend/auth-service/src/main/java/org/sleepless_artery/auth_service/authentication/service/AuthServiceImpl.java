@@ -6,6 +6,7 @@ import org.sleepless_artery.auth_service.authentication.dto.JwtResponse;
 import org.sleepless_artery.auth_service.common.exception.BadCredentialException;
 import org.sleepless_artery.auth_service.common.logging.annotation.BusinessEvent;
 import org.sleepless_artery.auth_service.common.logging.event.LogEvent;
+import org.sleepless_artery.auth_service.credential.service.query.CredentialQueryService;
 import org.sleepless_artery.auth_service.security.jwt.JwtTokenUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
+    private final CredentialQueryService credentialQueryService;
 
 
     /**
@@ -47,7 +49,8 @@ public class AuthServiceImpl implements AuthService {
             );
 
             var userDetails = (UserDetails) authentication.getPrincipal();
-            var token = jwtTokenUtils.generateToken(Objects.requireNonNull(userDetails));
+            var credential = credentialQueryService.findCredentialByEmailAddress(userDetails.getUsername());
+            var token = jwtTokenUtils.generateToken(Objects.requireNonNull(userDetails), credential.getId());
             return new JwtResponse(token);
 
         } catch (BadCredentialsException exception) {

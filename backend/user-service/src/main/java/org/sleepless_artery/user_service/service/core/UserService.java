@@ -3,6 +3,8 @@ package org.sleepless_artery.user_service.service.core;
 import org.sleepless_artery.user_service.dto.UserRequestDto;
 import org.sleepless_artery.user_service.dto.UserResponseDto;
 
+import java.util.Set;
+
 
 /**
  * User management service.
@@ -22,5 +24,9 @@ public interface UserService {
 
     UserResponseDto updateUser(Long id, UserRequestDto user);
 
+    UserResponseDto updateUser(Long id, UserRequestDto user, Long currentUserId, Set<String> currentUserRoles);
+
     void deleteUserById(Long id);
+
+    void deleteUserById(Long id, Long currentUserId, Set<String> currentUserRoles);
 }

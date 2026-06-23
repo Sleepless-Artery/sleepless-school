@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 
 /**
@@ -25,13 +26,21 @@ public interface CourseService {
 
     CourseResponseDto createCourse(CourseRequestDto courseRequestDto);
 
+    CourseResponseDto createCourse(CourseRequestDto courseRequestDto, Long currentUserId, Set<String> currentUserRoles);
+
     CourseResponseDto updateCourse(Long id, CourseRequestDto courseRequestDto);
+
+    CourseResponseDto updateCourse(Long id, CourseRequestDto courseRequestDto, Long currentUserId, Set<String> currentUserRoles);
 
     void updateCourseLastUpdateDate(Long id);
 
     void deleteCourse(Long id);
 
+    void deleteCourse(Long id, Long currentUserId, Set<String> currentUserRoles);
+
     void deleteCoursesByAuthorId(Long authorId);
+
+    void deleteCoursesByAuthorId(Long authorId, Long currentUserId, Set<String> currentUserRoles);
 
     boolean existsById(Long id);
 }

@@ -58,10 +58,20 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
 
                             exchange.getAttributes().put("user.email", claims.getSubject());
                             exchange.getAttributes().put("user.roles", claims.get("roles", List.class));
+                            var userId = claims.get("userId", Number.class);
+
+                            if (userId == null) {
+                                return Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing user identity in JWT"));
+                            }
+
+                            exchange.getAttributes().put("user.id", userId);
 
                             var modifiedRequest = exchange.getRequest().mutate()
                                     .header("X-User-Email", claims.getSubject())
-                                    .header("X-User-Roles", String.join(",", claims.get("roles", List.class)))
+                                    .header("X-User-Roles",
+                                            String.join(",", claims.get("roles", List.class))
+                                    )
+                                    .header("X-User-Id", String.valueOf(userId.longValue()))
                                     .build();
 
                             return chain.filter(exchange.mutate().request(modifiedRequest).build());

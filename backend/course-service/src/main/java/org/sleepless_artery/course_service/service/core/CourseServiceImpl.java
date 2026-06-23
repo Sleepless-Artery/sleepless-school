@@ -7,6 +7,7 @@ import org.sleepless_artery.course_service.exception.AuthorDoesNotExistException
 import org.sleepless_artery.course_service.exception.CourseAlreadyExistsException;
 import org.sleepless_artery.course_service.exception.CourseNotFoundException;
 import org.sleepless_artery.course_service.exception.ExternalServiceUnavailableException;
+import org.sleepless_artery.course_service.exception.ForbiddenActionException;
 import org.sleepless_artery.course_service.logging.annotation.BusinessEvent;
 import org.sleepless_artery.course_service.logging.event.LogEvent;
 import org.sleepless_artery.course_service.service.external.user.UserExistenceChecker;
@@ -16,6 +17,8 @@ import org.sleepless_artery.course_service.repository.CourseRepository;
 import org.sleepless_artery.course_service.repository.specifications.CourseSpecifications;
 import org.sleepless_artery.course_service.service.util.TransactionUtils;
 import org.springframework.cache.CacheManager;
+
+import java.util.Set;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -147,6 +150,53 @@ public class CourseServiceImpl implements CourseService {
         return courseMapper.toDto(
                 courseRepository.save(courseMapper.toEntity(dto))
         );
+    }
+
+    @Override
+    public CourseResponseDto createCourse(CourseRequestDto courseRequestDto, Long currentUserId, Set<String> currentUserRoles) {
+        ensureAuthorOrAdmin(currentUserId, courseRequestDto.getAuthorId(), currentUserRoles);
+        return createCourse(courseRequestDto);
+    }
+
+    @Override
+    public CourseResponseDto updateCourse(Long id, CourseRequestDto courseRequestDto, Long currentUserId, Set<String> currentUserRoles) {
+        var course = courseRepository.findById(id)
+                .orElseThrow(() ->
+                        new CourseNotFoundException("Course not found with ID " + id));
+
+        ensureAuthorOrAdmin(currentUserId, course.getAuthorId(), currentUserRoles);
+
+        if (!courseRequestDto.getAuthorId().equals(course.getAuthorId()) && !isAdmin(currentUserRoles)) {
+            throw new ForbiddenActionException("Only administrators can reassign course ownership");
+        }
+
+        return updateCourse(id, courseRequestDto);
+    }
+
+    @Override
+    public void deleteCourse(Long id, Long currentUserId, Set<String> currentUserRoles) {
+        var course = courseRepository.findById(id)
+                .orElseThrow(() ->
+                        new CourseNotFoundException("Course not found with ID " + id));
+
+        ensureAuthorOrAdmin(currentUserId, course.getAuthorId(), currentUserRoles);
+        deleteCourse(id);
+    }
+
+    @Override
+    public void deleteCoursesByAuthorId(Long authorId, Long currentUserId, Set<String> currentUserRoles) {
+        ensureAuthorOrAdmin(currentUserId, authorId, currentUserRoles);
+        deleteCoursesByAuthorId(authorId);
+    }
+
+    private void ensureAuthorOrAdmin(Long currentUserId, Long ownerId, Set<String> currentUserRoles) {
+        if (!currentUserId.equals(ownerId) && !isAdmin(currentUserRoles)) {
+            throw new ForbiddenActionException("Only the course author or an administrator can perform this action");
+        }
+    }
+
+    private boolean isAdmin(Set<String> currentUserRoles) {
+        return currentUserRoles.contains("ADMIN") || currentUserRoles.contains("ROLE_ADMIN");
     }
 
 

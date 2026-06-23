@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/backend/auth-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/user-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/course-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/lesson-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/gateway-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/assignment-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/enrollment-service/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/submission-service/target/maven-archiver/pom.properties" />
+        <option value="$PROJECT_DIR$/backend/notification-service/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

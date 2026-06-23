@@ -51,9 +51,10 @@ public class JwtTokenUtils {
      * Generates a signed JWT token for the given user details.
      *
      * @param userDetails the authenticated user details containing roles
+     * @param userId      the authenticated user identifier
      * @return the compact JWT string
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, Long userId) {
         Map<String, Object> claims = new HashMap<>();
 
         Set<String> roles = userDetails.getAuthorities()
@@ -62,6 +63,7 @@ public class JwtTokenUtils {
                 .collect(Collectors.toSet());
 
         claims.put("roles", roles);
+        claims.put("userId", userId);
 
         var issuedDate = new Date();
         var expirationDate = new Date(issuedDate.getTime() + jwtProperties.getLifetime().toMillis());

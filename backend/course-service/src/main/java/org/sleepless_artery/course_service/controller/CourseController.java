@@ -10,6 +10,8 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.sleepless_artery.course_service.dto.CourseRequestDto;
 import org.sleepless_artery.course_service.dto.CourseResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
+import org.sleepless_artery.course_service.security.RequestUserContext;
 import org.sleepless_artery.course_service.service.core.CourseService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,9 +98,17 @@ public class CourseController {
     @PostMapping
     public ResponseEntity<CourseResponseDto> createCourse(
             @Parameter(description = "Course creation request")
-            @Valid @RequestBody final CourseRequestDto courseRequestDto
+            @Valid @RequestBody final CourseRequestDto courseRequestDto,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok(courseService.createCourse(courseRequestDto));
+        var userContext = RequestUserContext.from(request);
+        return ResponseEntity.ok(
+                courseService.createCourse(
+                        courseRequestDto,
+                        userContext.getUserId(),
+                        userContext.getRoles()
+                )
+        );
     }
 
 
@@ -117,9 +127,18 @@ public class CourseController {
             @PathVariable final Long id,
 
             @Parameter(description = "Updated course data")
-            @Valid @RequestBody final CourseRequestDto courseRequestDto
+            @Valid @RequestBody final CourseRequestDto courseRequestDto,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok(courseService.updateCourse(id, courseRequestDto));
+        var userContext = RequestUserContext.from(request);
+        return ResponseEntity.ok(
+                courseService.updateCourse(
+                        id,
+                        courseRequestDto,
+                        userContext.getUserId(),
+                        userContext.getRoles()
+                )
+        );
     }
 
 
@@ -131,9 +150,11 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourse(
             @Parameter(description = "Course identifier", example = "1")
-            @PathVariable final Long id
+            @PathVariable final Long id,
+            HttpServletRequest request
     ) {
-        courseService.deleteCourse(id);
+        var userContext = RequestUserContext.from(request);
+        courseService.deleteCourse(id, userContext.getUserId(), userContext.getRoles());
         return ResponseEntity.noContent().build();
     }
 
@@ -147,9 +168,11 @@ public class CourseController {
     public ResponseEntity<Void> deleteCoursesByAuthor(
 
             @Parameter(description = "Author identifier", example = "10")
-            @PathVariable final Long authorId
+            @PathVariable final Long authorId,
+            HttpServletRequest request
     ) {
-        courseService.deleteCoursesByAuthorId(authorId);
+        var userContext = RequestUserContext.from(request);
+        courseService.deleteCoursesByAuthorId(authorId, userContext.getUserId(), userContext.getRoles());
         return ResponseEntity.noContent().build();
     }
 }

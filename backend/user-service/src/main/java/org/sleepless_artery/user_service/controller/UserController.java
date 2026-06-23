@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.sleepless_artery.user_service.dto.UserRequestDto;
 import org.sleepless_artery.user_service.dto.UserResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
+import org.sleepless_artery.user_service.security.RequestUserContext;
 import org.sleepless_artery.user_service.service.core.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,9 +65,16 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
-            @PathVariable Long id, @Valid @RequestBody UserRequestDto userRequestDto
+            @PathVariable Long id, @Valid @RequestBody UserRequestDto userRequestDto,
+            HttpServletRequest request
     ) {
-        UserResponseDto userResponseDto = userService.updateUser(id, userRequestDto);
+        var userContext = RequestUserContext.from(request);
+        UserResponseDto userResponseDto = userService.updateUser(
+                id,
+                userRequestDto,
+                userContext.getUserId(),
+                userContext.getRoles()
+        );
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
 
@@ -76,8 +85,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUserById(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, HttpServletRequest request) {
+        var userContext = RequestUserContext.from(request);
+        userService.deleteUserById(id, userContext.getUserId(), userContext.getRoles());
         return ResponseEntity.noContent().build();
     }
 

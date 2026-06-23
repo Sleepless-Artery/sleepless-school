@@ -3,7 +3,9 @@ package org.sleepless_artery.user_service.service.core;
 import lombok.RequiredArgsConstructor;
 import org.sleepless_artery.user_service.dto.UserRequestDto;
 import org.sleepless_artery.user_service.dto.UserResponseDto;
-import org.sleepless_artery.user_service.exception.*;
+import org.sleepless_artery.user_service.exception.ForbiddenActionException;
+import org.sleepless_artery.user_service.exception.EmailAddressAlreadyExistsException;
+import org.sleepless_artery.user_service.exception.UserNotFoundException;
 import org.sleepless_artery.user_service.logging.annotation.BusinessEvent;
 import org.sleepless_artery.user_service.logging.event.LogEvent;
 import org.sleepless_artery.user_service.mapper.UserMapper;
@@ -15,6 +17,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 
 /**
@@ -151,6 +155,12 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(updatedUser);
     }
 
+    @Override
+    public UserResponseDto updateUser(Long id, UserRequestDto dto, Long currentUserId, Set<String> currentUserRoles) {
+        ensureSameUserOrAdmin(id, currentUserId, currentUserRoles);
+        return updateUser(id, dto);
+    }
+
 
     /**
      * Deletes user by identifier.
@@ -160,6 +170,12 @@ public class UserServiceImpl implements UserService {
      * @param id user identifier
      * @throws UserNotFoundException if user does not exist
      */
+    @Override
+    public void deleteUserById(Long id, Long currentUserId, Set<String> currentUserRoles) {
+        ensureSameUserOrAdmin(id, currentUserId, currentUserRoles);
+        deleteUserById(id);
+    }
+
     @Override
     @BusinessEvent(LogEvent.USER_DELETION)
     @Transactional
@@ -176,6 +192,11 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    private void ensureSameUserOrAdmin(Long requestedUserId, Long currentUserId, Set<String> currentUserRoles) {
+        if (!currentUserId.equals(requestedUserId) && !currentUserRoles.contains("ADMIN") && !currentUserRoles.contains("ROLE_ADMIN")) {
+            throw new ForbiddenActionException("Only the owning user or an administrator can perform this action");
+        }
+    }
 
     private void evictAndPublishUser(Long userId, String email) {
         var idCache = cacheManager.getCache(USER_ID_CACHE);

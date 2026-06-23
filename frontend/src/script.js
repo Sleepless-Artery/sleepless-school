@@ -1,6 +1,8 @@
 const API_BASE_URL = '/api';
 let token = localStorage.getItem('token') || null;
 let userId = null;
+let currentCourseId = null;
+let userEnrollments = [];
 
 function decodeJWT(token) {
     try {
@@ -217,7 +219,7 @@ async function showProfile() {
 
     userEnrollments = await fetchWithAuth(`/enroll/student/${user.id}`);
 
-    const enrollments = await fetchWithAuth(`/enroll/student/${user.id}`);
+    const enrollments = userEnrollments;
     const enrolledCourses = await Promise.all(
         enrollments.map(async (enrollment) => 
             await fetchWithAuth(`/courses/${enrollment.enrollmentId.courseId}`)
@@ -412,22 +414,21 @@ async function showLesson(lessonId) {
         }
         
         const isAuthor = userId === course.authorId;
+        const fileAssignments = Array.isArray(assignments) ? assignments.filter(a => a.displayFilename !== undefined) : [];
+        const testAssignments = Array.isArray(assignments) ? assignments.filter(a => a.condition !== undefined || (a.options && a.correctOptionsIndices)) : [];
         
-        // const fileAssignments = assignments.filter(a => a.displayFilename !== undefined) || [];
-        // const testAssignments = assignments.filter(a => a.condition !== undefined || 
-        //                                                (a.options && a.correctOptionsIndices)) || [];
-        
-        // let submissions = [];
-        // if (token && !isAuthor) {
-        //     try {
-        //         submissions = await fetchWithAuth(`/submissions/query/assignment/${assignmentId}/studentId/${userId}`);
-        //         if (!Array.isArray(submissions)) {
-        //             submissions = [];
-        //         }
-        //     } catch (err) {
-        //         console.log('No submissions found:', err.message);
-        //     }
-        // }
+        let submissions = [];
+        if (token && !isAuthor) {
+            try {
+                submissions = await fetchWithAuth(`/submissions/query/assignment/${lessonId}/studentId/${userId}`);
+                if (!Array.isArray(submissions)) {
+                    submissions = [];
+                }
+            } catch (err) {
+                console.log('No submissions found:', err.message);
+                submissions = [];
+            }
+        }
         
         document.getElementById('content').innerHTML = `
             <div class="lesson-content-wrapper">
@@ -838,7 +839,7 @@ async function showCourse(courseId) {
         const payload = decodeJWT(token);
         const isAuthor = payload && userId === course.authorId;
                 
-        const isEnrolled = userEnrollments.some(e => 
+        const isEnrolled = Array.isArray(userEnrollments) && userEnrollments.some(e => 
             e.enrollmentId?.courseId === courseId || 
             e.courseId === courseId
         );
@@ -855,9 +856,9 @@ async function showCourse(courseId) {
                     <button onclick="deleteCourse(${courseId})">Delete Course</button>
                     <button onclick="showCreateLesson(${courseId})">Add Lesson</button>
                 ` : (token ? (isEnrolled ? `
-                    <button onclick="leaveCourse()">Leave Course</button>
+                    <button onclick="leaveCourse(event)">Leave Course</button>
                 ` : `
-                    <button onclick="enrollCourse()">Enroll</button>
+                    <button onclick="enrollCourse(event)">Enroll</button>
                 `) : '')}
             </div>
             <h2>Lessons</h2>
@@ -1638,15 +1639,15 @@ async function deleteLesson(lessonId) {
     }
 }
 
-async function enrollCourse() {
+async function enrollCourse(event) {
     console.log(`Enrolling in course: ${currentCourseId}`);
 
     if (!currentCourseId) return;
-    const button = event.target;
-    const originalText = button.textContent;
+    const button = event?.target || document.activeElement;
+    const originalText = button?.textContent || 'Enroll';
             
     try {
-        button.disabled = true;
+        if (button) button.disabled = true;
                 
         await fetchWithAuth(`/enroll?studentId=${userId}&courseId=${currentCourseId}`, { 
             method: 'POST' 
@@ -1668,13 +1669,13 @@ async function enrollCourse() {
     }
 }
 
-async function leaveCourse() {
+async function leaveCourse(event) {
     if (!currentCourseId) return;
-    const button = event.target;
-    const originalText = button.textContent;
+    const button = event?.target || document.activeElement;
+    const originalText = button?.textContent || 'Leave Course';
             
     try {
-        button.disabled = true;
+        if (button) button.disabled = true;
                 
         const isEnrolled = userEnrollments.some(e => 
             e.enrollmentId?.courseId === currentCourseId || 
